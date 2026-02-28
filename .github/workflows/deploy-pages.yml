@@ -34,7 +34,7 @@ jobs:
         run: npm run build
 
       - name: Build vanilla example
-        run: npx vite build -c examples/vanilla/vite.config.ts
+        run: BASE_PATH=/maplibre-gl-vantor/ npx vite build -c examples/vanilla/vite.config.ts
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
