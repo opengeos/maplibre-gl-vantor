@@ -90,7 +90,7 @@ export class CogLayerAdapter {
     return this.layerInfoMap.get(layerId)?.name ?? layerId;
   }
 
-  getSymbolType(_layerId: string): string {
+  getSymbolType(): string {
     return 'raster';
   }
 

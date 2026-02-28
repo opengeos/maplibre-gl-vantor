@@ -40,7 +40,6 @@ function applyOpacity(layers: any, opacity: number): any {
  * This converts GeoTIFF geokeys directly to proj4 strings with correct
  * coordinatesUnits, avoiding the epsg.io PROJJSON ellipsoid lookup issues.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function buildGeoKeysParser(): Promise<GeoKeysParser | null> {
   try {
     const geokeysModule = await import('geotiff-geokeys-to-proj4');
@@ -217,7 +216,6 @@ export class CogLayer {
     // Wait for geoKeysParser to be ready
     await this.geoKeysParserReady;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.activeLayers.map((entry) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const props: Record<string, any> = {
