@@ -1,0 +1,104 @@
+import type { Polygon } from 'geojson';
+
+export interface StacLink {
+  rel: string;
+  href: string;
+  type?: string;
+  title?: string;
+}
+
+export interface StacCatalog {
+  type: 'Catalog';
+  id: string;
+  stac_version: string;
+  description: string;
+  license?: string;
+  links: StacLink[];
+}
+
+export interface StacCollection {
+  type: 'Collection';
+  id: string;
+  stac_version: string;
+  title?: string;
+  description: string;
+  license?: string;
+  extent: {
+    spatial: { bbox: number[][] };
+    temporal: { interval: [string, string][] };
+  };
+  links: StacLink[];
+}
+
+export interface StacAsset {
+  href: string;
+  type: string;
+  title?: string;
+  roles?: string[];
+}
+
+export interface StacItemProperties {
+  title?: string;
+  datetime: string;
+  phase: 'pre' | 'post';
+  vehicle_name: string;
+  constellation: string;
+  'eo:cloud_cover': number;
+  pan_gsd: number;
+  multispectral_gsd: number;
+  'view:off_nadir': number;
+  'view:azimuth'?: number;
+  'view:sun_azimuth'?: number;
+  'view:sun_elevation'?: number;
+  published?: string;
+  [key: string]: unknown;
+}
+
+export interface StacItem {
+  type: 'Feature';
+  id: string;
+  stac_version: string;
+  geometry: Polygon;
+  bbox: [number, number, number, number];
+  properties: StacItemProperties;
+  assets: Record<string, StacAsset>;
+  links: StacLink[];
+  collection?: string;
+  stac_extensions?: string[];
+}
+
+export interface EventInfo {
+  id: string;
+  title: string;
+  href: string;
+}
+
+export interface BBox {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
+export type PhaseFilter = 'all' | 'pre' | 'post';
+
+export interface ItemProperties {
+  id: string;
+  datetime: string;
+  phase: string;
+  sensor: string;
+  cloud_cover: number | string;
+  pan_gsd: number | string;
+  ms_gsd: number | string;
+  off_nadir: number | string;
+}
+
+export interface VantorControlOptions {
+  catalogUrl?: string;
+  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  collapsed?: boolean;
+  panelWidth?: number;
+  maxHeight?: number | string;
+  onItemsLoaded?: (items: StacItem[]) => void;
+  onSelectionChange?: (selectedItems: StacItem[]) => void;
+}
