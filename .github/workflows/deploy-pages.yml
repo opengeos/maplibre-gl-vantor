@@ -33,9 +33,6 @@ jobs:
       - name: Build library
         run: npm run build
 
-      - name: Build examples for deployment
-        run: npm run build:examples
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
