@@ -50,12 +50,12 @@ export class VantorControl implements IControl {
     );
     this.bindEvents();
     this.loadCatalog();
+    this.cogLayer = new CogLayer(map);
 
     const initLayers = () => {
       this.footprintLayer = new FootprintLayer(map);
       this.highlightLayer = new HighlightLayer(map);
       this.drawBBox = new DrawBBox(map);
-      this.cogLayer = new CogLayer(map);
 
       // Bind footprint click after layer is ready
       this.footprintLayer.onClick((itemId) => {
@@ -90,6 +90,10 @@ export class VantorControl implements IControl {
 
   getDefaultPosition(): ControlPosition {
     return this.options.position || 'top-right';
+  }
+
+  getCogLayer(): CogLayer | null {
+    return this.cogLayer;
   }
 
   private bindEvents(): void {

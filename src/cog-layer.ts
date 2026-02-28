@@ -1,20 +1,45 @@
-import type { Map, IControl } from 'maplibre-gl';
+import type { Map as MaplibreMap, IControl } from 'maplibre-gl';
 import type { StacItem } from './types';
+
+export type CogLayerEvent = 'layeradd' | 'layerremove';
+
+export interface CogLayerEventDetail {
+  layerId: string;
+  url?: string;
+  name?: string;
+}
+
+type CogLayerEventHandler = (detail: CogLayerEventDetail) => void;
 
 interface CogLayerEntry {
   itemId: string;
   cogUrl: string;
+  name: string;
+  visible: boolean;
+  opacity: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GeoKeysParser = (geoKeys: Record<string, unknown>) => Promise<any>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyOpacity(layers: any, opacity: number): any {
+  if (!layers) return layers;
+  if (Array.isArray(layers)) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return layers.map((layer: any) => applyOpacity(layer, opacity));
+  }
+  if (typeof layers.clone === 'function') {
+    return layers.clone({ opacity });
+  }
+  return layers;
+}
 
 /**
  * Build a geoKeysParser using geotiff-geokeys-to-proj4.
  * This converts GeoTIFF geokeys directly to proj4 strings with correct
  * coordinatesUnits, avoiding the epsg.io PROJJSON ellipsoid lookup issues.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function buildGeoKeysParser(): Promise<GeoKeysParser | null> {
   try {
     const geokeysModule = await import('geotiff-geokeys-to-proj4');
@@ -113,19 +138,53 @@ async function patchCOGLayerForNodata(COGLayerClass: any): Promise<void> {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function patchCOGLayerForOpacity(COGLayerClass: any): void {
+  if (COGLayerClass.__opacityPatched) return;
+  COGLayerClass.__opacityPatched = true;
+
+  const originalRenderSubLayers = COGLayerClass.prototype._renderSubLayers;
+  if (typeof originalRenderSubLayers !== 'function') return;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  COGLayerClass.prototype._renderSubLayers = function (...args: any[]) {
+    const layers = originalRenderSubLayers.apply(this, args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const opacity = (this as any).props.opacity;
+    if (opacity === undefined || opacity === null) return layers;
+    return applyOpacity(layers, Math.max(0, Math.min(1, opacity)));
+  };
+}
+
 export class CogLayer {
-  private map: Map;
+  private map: MaplibreMap;
   private overlay: unknown | null = null;
   private activeLayers: CogLayerEntry[] = [];
   private initialized = false;
   private geoKeysParser: GeoKeysParser | null = null;
   private geoKeysParserReady: Promise<void>;
+  private eventHandlers: Map<CogLayerEvent, Set<CogLayerEventHandler>> = new Map();
 
-  constructor(map: Map) {
+  constructor(map: MaplibreMap) {
     this.map = map;
     this.geoKeysParserReady = buildGeoKeysParser().then((parser) => {
       this.geoKeysParser = parser;
     });
+  }
+
+  on(event: CogLayerEvent, handler: CogLayerEventHandler): void {
+    if (!this.eventHandlers.has(event)) {
+      this.eventHandlers.set(event, new Set());
+    }
+    this.eventHandlers.get(event)!.add(handler);
+  }
+
+  off(event: CogLayerEvent, handler: CogLayerEventHandler): void {
+    this.eventHandlers.get(event)?.delete(handler);
+  }
+
+  private emit(event: CogLayerEvent, detail: CogLayerEventDetail): void {
+    this.eventHandlers.get(event)?.forEach((handler) => handler(detail));
   }
 
   private async ensureOverlay(): Promise<void> {
@@ -152,17 +211,18 @@ export class CogLayer {
 
     // Patch COGLayer for nodata masking (only patches once)
     await patchCOGLayerForNodata(COGLayer);
+    patchCOGLayerForOpacity(COGLayer);
 
     // Wait for geoKeysParser to be ready
     await this.geoKeysParserReady;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.activeLayers.map((entry) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const props: Record<string, any> = {
         id: `vantor-cog-${entry.itemId}`,
         geotiff: entry.cogUrl,
         _nodata: 0,
+        opacity: entry.visible ? entry.opacity : 0,
       };
       if (this.geoKeysParser) {
         props.geoKeysParser = this.geoKeysParser;
@@ -178,6 +238,7 @@ export class CogLayer {
     (this.overlay as { setProps: (props: { layers: unknown[] }) => void }).setProps({
       layers,
     });
+    this.map.triggerRepaint();
   }
 
   async addCogLayer(item: StacItem): Promise<void> {
@@ -191,22 +252,56 @@ export class CogLayer {
 
     await this.ensureOverlay();
 
-    this.activeLayers.push({ itemId: item.id, cogUrl });
+    const name = item.id;
+    this.activeLayers.push({ itemId: item.id, cogUrl, name, visible: true, opacity: 1 });
     await this.updateOverlay();
+
+    this.emit('layeradd', { layerId: item.id, url: cogUrl, name });
   }
 
   async removeCogLayer(itemId: string): Promise<void> {
+    const existed = this.activeLayers.some((l) => l.itemId === itemId);
     this.activeLayers = this.activeLayers.filter((l) => l.itemId !== itemId);
     await this.updateOverlay();
+
+    if (existed) {
+      this.emit('layerremove', { layerId: itemId });
+    }
   }
 
   async removeAll(): Promise<void> {
+    const ids = this.activeLayers.map((l) => l.itemId);
     this.activeLayers = [];
     if (this.overlay) {
       (this.overlay as { setProps: (props: { layers: unknown[] }) => void }).setProps({
         layers: [],
       });
     }
+    for (const id of ids) {
+      this.emit('layerremove', { layerId: id });
+    }
+  }
+
+  setLayerVisibility(layerId: string, visible: boolean): void {
+    const entry = this.activeLayers.find((l) => l.itemId === layerId);
+    if (!entry) return;
+    entry.visible = visible;
+    this.updateOverlay();
+  }
+
+  setLayerOpacity(layerId: string, opacity: number): void {
+    const entry = this.activeLayers.find((l) => l.itemId === layerId);
+    if (!entry) return;
+    entry.opacity = Math.max(0, Math.min(1, opacity));
+    if (entry.visible) {
+      this.updateOverlay();
+    }
+  }
+
+  getLayerEntry(layerId: string): { name: string; visible: boolean; opacity: number } | null {
+    const entry = this.activeLayers.find((l) => l.itemId === layerId);
+    if (!entry) return null;
+    return { name: entry.name, visible: entry.visible, opacity: entry.opacity };
   }
 
   private findCogUrl(item: StacItem): string | null {
@@ -224,6 +319,7 @@ export class CogLayer {
   }
 
   remove(): void {
+    const ids = this.activeLayers.map((l) => l.itemId);
     if (this.overlay) {
       try {
         this.map.removeControl(this.overlay as IControl);
@@ -234,5 +330,8 @@ export class CogLayer {
     }
     this.activeLayers = [];
     this.initialized = false;
+    for (const id of ids) {
+      this.emit('layerremove', { layerId: id });
+    }
   }
 }
