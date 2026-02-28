@@ -47,7 +47,7 @@ export class HighlightLayer {
 
   highlight(item: StacItem): void {
     const source = this.map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-    if (!source) return;
+    if (!source || !item.geometry) return;
 
     source.setData({
       type: 'FeatureCollection',

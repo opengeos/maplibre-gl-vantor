@@ -89,10 +89,10 @@ function App() {
 A dedicated React component is also available:
 
 ```tsx
-import { VantorControlReact } from "maplibre-gl-vantor";
+import { VantorControl } from "maplibre-gl-vantor/react";
 
 // Inside your component where you have a map instance:
-<VantorControlReact map={mapInstance} position="top-right" />
+<VantorControl map={mapInstance} position="top-right" />
 ```
 
 ## Options

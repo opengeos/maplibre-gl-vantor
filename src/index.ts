@@ -1,7 +1,6 @@
 export { VantorControl } from './control';
 export { StacClient } from './stac-client';
 export { DrawBBox } from './draw-bbox';
-export { VantorControl as VantorControlReact } from './react/VantorControl';
 
 export type {
   VantorControlOptions,

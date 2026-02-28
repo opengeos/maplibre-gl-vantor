@@ -21,7 +21,7 @@ export function itemsToFeatureCollection(items: StacItem[]): FeatureCollection {
       .map((item) => ({
         type: 'Feature' as const,
         id: item.id,
-        geometry: item.geometry,
+        geometry: item.geometry!,
         properties: {
           id: item.id,
           phase: item.properties.phase || '',

@@ -187,6 +187,9 @@ export class DrawBBox {
   }
 
   removeLayers(): void {
+    if (this.active) {
+      this.deactivate();
+    }
     if (this.map.getLayer(LINE_LAYER_ID)) {
       this.map.removeLayer(LINE_LAYER_ID);
     }

@@ -84,15 +84,16 @@ export class PanelUI extends EventTarget {
       this.panelDiv.classList.add('vantor-panel--collapsed');
     }
     if (this.panelWidth) {
-      this.panelDiv.style.width = `${this.panelWidth}px`;
+      this.panelDiv.style.setProperty('--vantor-panel-width', `${this.panelWidth}px`);
     }
     if (this.maxHeight !== undefined) {
-      this.panelDiv.style.maxHeight =
-        typeof this.maxHeight === 'number' ? `${this.maxHeight}px` : this.maxHeight;
+      const val = typeof this.maxHeight === 'number' ? `${this.maxHeight}px` : this.maxHeight;
+      this.panelDiv.style.setProperty('--vantor-panel-max-height', val);
     }
 
     // Toggle button (close X) — only visible when expanded
     this.toggleBtn = this.el('button', 'vantor-panel__toggle');
+    this.toggleBtn.type = 'button';
     this.toggleBtn.innerHTML = '&#10005;';
     this.toggleBtn.title = 'Collapse panel';
     this.toggleBtn.addEventListener('click', () => {
@@ -165,6 +166,7 @@ export class PanelUI extends EventTarget {
     eventRow.appendChild(this.eventSelect);
 
     const refreshBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--refresh');
+    refreshBtn.type = 'button';
     refreshBtn.innerHTML = '&#8635;';
     refreshBtn.title = 'Refresh catalog';
     refreshBtn.addEventListener('click', () => this.emit('refresh'));
@@ -197,10 +199,8 @@ export class PanelUI extends EventTarget {
     const spatialField = this.el('div', 'vantor-panel__field');
     this.useExtentCheckbox = document.createElement('input');
     this.useExtentCheckbox.type = 'checkbox';
-    this.useExtentCheckbox.id = 'vantor-use-extent';
 
     const checkLabel = this.el('label', 'vantor-panel__checkbox-label');
-    checkLabel.htmlFor = 'vantor-use-extent';
     checkLabel.appendChild(this.useExtentCheckbox);
     const checkSpan = document.createElement('span');
     checkSpan.textContent = 'Use Map Extent';
@@ -212,6 +212,7 @@ export class PanelUI extends EventTarget {
     const bboxControls = this.el('div', 'vantor-panel__bbox-controls');
 
     this.drawBBoxBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--small');
+    this.drawBBoxBtn.type = 'button';
     this.drawBBoxBtn.textContent = 'Draw BBox';
     this.drawBBoxBtn.addEventListener('click', () => {
       this.drawBBoxBtn.classList.toggle('vantor-panel__btn--active');
@@ -220,6 +221,7 @@ export class PanelUI extends EventTarget {
     bboxControls.appendChild(this.drawBBoxBtn);
 
     this.clearBBoxBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--small');
+    this.clearBBoxBtn.type = 'button';
     this.clearBBoxBtn.textContent = 'Clear';
     this.clearBBoxBtn.disabled = true;
     this.clearBBoxBtn.addEventListener('click', () => {
@@ -234,6 +236,7 @@ export class PanelUI extends EventTarget {
 
     // Search button
     this.searchBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--primary');
+    this.searchBtn.type = 'button';
     this.searchBtn.textContent = 'Search';
     this.searchBtn.addEventListener('click', () => this.emit('search'));
     section.appendChild(this.searchBtn);
@@ -257,6 +260,7 @@ export class PanelUI extends EventTarget {
 
     const selectControls = this.el('div', 'vantor-panel__select-controls');
     const selectAllBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--small');
+    selectAllBtn.type = 'button';
     selectAllBtn.textContent = 'Select All';
     selectAllBtn.addEventListener('click', () => {
       this.setAllChecked(true);
@@ -265,6 +269,7 @@ export class PanelUI extends EventTarget {
     selectControls.appendChild(selectAllBtn);
 
     const deselectAllBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--small');
+    deselectAllBtn.type = 'button';
     deselectAllBtn.textContent = 'Deselect All';
     deselectAllBtn.addEventListener('click', () => {
       this.setAllChecked(false);
@@ -307,11 +312,13 @@ export class PanelUI extends EventTarget {
     const section = this.el('div', 'vantor-panel__actions');
 
     this.visualizeBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--success');
+    this.visualizeBtn.type = 'button';
     this.visualizeBtn.textContent = 'Visualize';
     this.visualizeBtn.addEventListener('click', () => this.emit('visualize'));
     section.appendChild(this.visualizeBtn);
 
     this.downloadBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--warning');
+    this.downloadBtn.type = 'button';
     this.downloadBtn.textContent = 'Download';
     this.downloadBtn.addEventListener('click', () => this.emit('download'));
     section.appendChild(this.downloadBtn);
@@ -329,6 +336,7 @@ export class PanelUI extends EventTarget {
     this.progressContainer.appendChild(progressTrack);
 
     this.cancelBtn = this.el('button', 'vantor-panel__btn vantor-panel__btn--small');
+    this.cancelBtn.type = 'button';
     this.cancelBtn.textContent = 'Cancel';
     this.cancelBtn.addEventListener('click', () => this.emit('cancel-download'));
     this.progressContainer.appendChild(this.cancelBtn);

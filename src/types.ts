@@ -1,4 +1,4 @@
-import type { Polygon } from 'geojson';
+import type { Polygon, MultiPolygon } from 'geojson';
 
 export interface StacLink {
   rel: string;
@@ -39,14 +39,14 @@ export interface StacAsset {
 
 export interface StacItemProperties {
   title?: string;
-  datetime: string;
-  phase: 'pre' | 'post';
-  vehicle_name: string;
-  constellation: string;
-  'eo:cloud_cover': number;
-  pan_gsd: number;
-  multispectral_gsd: number;
-  'view:off_nadir': number;
+  datetime?: string;
+  phase?: 'pre' | 'post' | string;
+  vehicle_name?: string;
+  constellation?: string;
+  'eo:cloud_cover'?: number;
+  pan_gsd?: number;
+  multispectral_gsd?: number;
+  'view:off_nadir'?: number;
   'view:azimuth'?: number;
   'view:sun_azimuth'?: number;
   'view:sun_elevation'?: number;
@@ -57,9 +57,9 @@ export interface StacItemProperties {
 export interface StacItem {
   type: 'Feature';
   id: string;
-  stac_version: string;
-  geometry: Polygon;
-  bbox: [number, number, number, number];
+  stac_version?: string;
+  geometry: Polygon | MultiPolygon | null;
+  bbox?: [number, number, number, number];
   properties: StacItemProperties;
   assets: Record<string, StacAsset>;
   links: StacLink[];

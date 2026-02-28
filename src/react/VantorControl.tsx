@@ -10,14 +10,16 @@ export interface VantorControlProps extends VantorControlOptions {
 export function VantorControl({ map, ...options }: VantorControlProps) {
   const controlRef = useRef<VantorControlClass | null>(null);
   const mapRef = useRef<Map | null>(null);
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   useEffect(() => {
     if (!map) return;
     mapRef.current = map;
 
-    const control = new VantorControlClass(options);
+    const control = new VantorControlClass(optionsRef.current);
     controlRef.current = control;
-    map.addControl(control, options.position || 'top-right');
+    map.addControl(control, optionsRef.current.position || 'top-right');
 
     return () => {
       if (mapRef.current && controlRef.current) {

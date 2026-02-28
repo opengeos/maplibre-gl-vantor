@@ -15,10 +15,11 @@ export default defineConfig(({ command }) => ({
       : [],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'MaplibreGlVantor',
-      formats: ['es', 'umd'],
-      fileName: (format) => `maplibre-gl-vantor.${format}.js`,
+      entry: {
+        'maplibre-gl-vantor': resolve(__dirname, 'src/index.ts'),
+        'maplibre-gl-vantor-react': resolve(__dirname, 'src/react/index.ts'),
+      },
+      formats: ['es'],
     },
     rollupOptions: {
       external: [

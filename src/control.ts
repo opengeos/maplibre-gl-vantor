@@ -123,6 +123,10 @@ export class VantorControl implements IControl {
         case 'cancel-download':
           this.downloader.cancel();
           break;
+        case 'select-all':
+        case 'deselect-all':
+          this.options.onSelectionChange?.(this.panel!.getCheckedItems());
+          break;
       }
     }) as EventListener);
   }

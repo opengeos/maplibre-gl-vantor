@@ -181,7 +181,7 @@ export class CogLayer {
   }
 
   async addCogLayer(item: StacItem): Promise<void> {
-    const cogUrl = item.assets?.visual?.href;
+    const cogUrl = this.findCogUrl(item);
     if (!cogUrl) {
       throw new Error(`No COG URL found for item ${item.id}`);
     }
@@ -207,6 +207,16 @@ export class CogLayer {
         layers: [],
       });
     }
+  }
+
+  private findCogUrl(item: StacItem): string | null {
+    const assets = item.assets || {};
+    if (assets.visual) return assets.visual.href;
+    for (const asset of Object.values(assets)) {
+      const t = (asset.type || '').toLowerCase();
+      if (t.includes('geotiff') || t.includes('tiff')) return asset.href;
+    }
+    return null;
   }
 
   getActiveLayerIds(): string[] {

@@ -12,6 +12,7 @@
   --vantor-text-muted: #a0a0a0;
   --vantor-border: #e0e0e0;
   --vantor-panel-width: 380px;
+  --vantor-panel-max-height: calc(100vh - 40px);
 }
 
 .maplibregl-ctrl-vantor {
@@ -20,7 +21,7 @@
 
 .vantor-panel {
   width: var(--vantor-panel-width);
-  max-height: calc(100vh - 40px);
+  max-height: var(--vantor-panel-max-height);
   background: var(--vantor-bg);
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
