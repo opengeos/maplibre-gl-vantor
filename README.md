@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/maplibre-gl-vantor.svg)](https://www.npmjs.com/package/maplibre-gl-vantor)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A [MapLibre GL JS](https://maplibre.org/) plugin for searching, visualizing, and downloading satellite imagery from the [Vantor Open Data](https://vantor-opendata.s3.amazonaws.com/events/catalog.json) STAC catalog.
+A [MapLibre GL JS](https://maplibre.org/) plugin for searching, visualizing, and downloading satellite imagery from the [Vantor Open Data](https://radiantearth.github.io/stac-browser/#/external/vantor-opendata.s3.amazonaws.com/events/catalog.json) STAC catalog.
 
 ## Features
 
@@ -99,15 +99,15 @@ import { VantorControlReact } from "maplibre-gl-vantor";
 
 The `VantorControl` constructor accepts a `VantorControlOptions` object:
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `catalogUrl` | `string` | Vantor catalog URL | STAC catalog root URL |
-| `position` | `string` | `'top-right'` | Map control position (`'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`) |
-| `collapsed` | `boolean` | `false` | Start with the panel collapsed |
-| `panelWidth` | `number` | `380` | Panel width in pixels |
-| `maxHeight` | `number \| string` | `'calc(100vh - 40px)'` | Panel max height. Number for pixels, string for any CSS value (e.g., `'80vh'`) |
-| `onItemsLoaded` | `(items: StacItem[]) => void` | - | Callback fired when search results are loaded |
-| `onSelectionChange` | `(items: StacItem[]) => void` | - | Callback fired when item selection changes |
+| Option              | Type                          | Default                | Description                                                                           |
+| ------------------- | ----------------------------- | ---------------------- | ------------------------------------------------------------------------------------- |
+| `catalogUrl`        | `string`                      | Vantor catalog URL     | STAC catalog root URL                                                                 |
+| `position`          | `string`                      | `'top-right'`          | Map control position (`'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`) |
+| `collapsed`         | `boolean`                     | `false`                | Start with the panel collapsed                                                        |
+| `panelWidth`        | `number`                      | `380`                  | Panel width in pixels                                                                 |
+| `maxHeight`         | `number \| string`            | `'calc(100vh - 40px)'` | Panel max height. Number for pixels, string for any CSS value (e.g., `'80vh'`)        |
+| `onItemsLoaded`     | `(items: StacItem[]) => void` | -                      | Callback fired when search results are loaded                                         |
+| `onSelectionChange` | `(items: StacItem[]) => void` | -                      | Callback fired when item selection changes                                            |
 
 ### Example with Options
 

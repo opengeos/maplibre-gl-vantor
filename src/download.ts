@@ -1,20 +1,23 @@
 import type { StacItem } from './types';
 
 export class Downloader {
-  private abortController: AbortController | null = null;
+  private cancelled = false;
 
   async downloadItems(
     items: StacItem[],
     getCogUrl: (item: StacItem) => string | null,
     onProgress?: (current: number, total: number, message: string) => void,
   ): Promise<{ completed: number; failed: number }> {
-    this.abortController = new AbortController();
+    this.cancelled = false;
     const total = items.length;
     let completed = 0;
     let failed = 0;
 
     for (let i = 0; i < items.length; i++) {
-      if (this.abortController.signal.aborted) break;
+      if (this.cancelled) {
+        onProgress?.(i, total, `Download cancelled. ${completed} file(s) completed.`);
+        break;
+      }
 
       const item = items[i];
       const cogUrl = getCogUrl(item);
@@ -28,33 +31,26 @@ export class Downloader {
       try {
         onProgress?.(i, total, `Downloading ${filename}...`);
 
-        const response = await fetch(cogUrl, {
-          signal: this.abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const blob = await response.blob();
-
-        // Trigger browser download
-        const url = URL.createObjectURL(blob);
+        // Use direct link to let the browser handle the download natively.
+        // This avoids loading the entire file into memory via fetch+blob,
+        // which fails for large COG files (hundreds of MB).
         const a = document.createElement('a');
-        a.href = url;
+        a.href = cogUrl;
         a.download = filename;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
 
         completed++;
-        onProgress?.(i + 1, total, `Downloaded ${filename} (${completed}/${total})`);
-      } catch (e) {
-        if ((e as Error).name === 'AbortError') {
-          onProgress?.(i, total, `Download cancelled. ${completed} file(s) completed.`);
-          break;
+        onProgress?.(i + 1, total, `Started ${filename} (${completed}/${total})`);
+
+        // Small delay between downloads to avoid browser throttling
+        if (i < items.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
+      } catch (e) {
         failed++;
         onProgress?.(
           i + 1,
@@ -64,11 +60,10 @@ export class Downloader {
       }
     }
 
-    this.abortController = null;
     return { completed, failed };
   }
 
   cancel(): void {
-    this.abortController?.abort();
+    this.cancelled = true;
   }
 }
