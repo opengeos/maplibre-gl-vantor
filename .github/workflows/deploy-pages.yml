@@ -37,7 +37,7 @@ jobs:
         run: BASE_PATH=/maplibre-gl-vantor/ npx vite build -c examples/vanilla/vite.config.ts
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
 
