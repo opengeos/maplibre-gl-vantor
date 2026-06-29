@@ -106,6 +106,7 @@ The `VantorControl` constructor accepts a `VantorControlOptions` object:
 | `collapsed`         | `boolean`                     | `false`                | Start with the panel collapsed                                                        |
 | `panelWidth`        | `number`                      | `380`                  | Panel width in pixels                                                                 |
 | `maxHeight`         | `number \| string`            | `'calc(100vh - 40px)'` | Panel max height. Number for pixels, string for any CSS value (e.g., `'80vh'`)        |
+| `theme`             | `'auto' \| 'light' \| 'dark'` | `'auto'`               | Panel color theme. `'auto'` follows the OS `prefers-color-scheme`; `'light'`/`'dark'` force it. Use `control.setTheme(...)` to switch at runtime |
 | `onItemsLoaded`     | `(items: StacItem[]) => void` | -                      | Callback fired when search results are loaded                                         |
 | `onSelectionChange` | `(items: StacItem[]) => void` | -                      | Callback fired when item selection changes                                            |
 
@@ -134,6 +135,10 @@ Main MapLibre GL control implementing `IControl`.
 ```ts
 const control = new VantorControl(options?: VantorControlOptions);
 map.addControl(control, "top-right");
+
+// Sync the panel theme with a host app's dark-mode toggle:
+control.setTheme("dark"); // 'auto' | 'light' | 'dark'
+
 // Later:
 map.removeControl(control);
 ```

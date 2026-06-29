@@ -33,5 +33,10 @@ export function VantorControl({ map, ...options }: VantorControlProps) {
     };
   }, [map]);
 
+  // Keep the panel theme in sync when the prop changes (e.g. host dark-mode toggle)
+  useEffect(() => {
+    if (options.theme) controlRef.current?.setTheme(options.theme);
+  }, [options.theme]);
+
   return null;
 }

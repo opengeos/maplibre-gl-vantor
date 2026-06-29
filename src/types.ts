@@ -99,6 +99,14 @@ export interface VantorControlOptions {
   collapsed?: boolean;
   panelWidth?: number;
   maxHeight?: number | string;
+  /**
+   * Color theme for the panel.
+   * - 'auto' (default): follow the OS `prefers-color-scheme`.
+   * - 'light' / 'dark': force the theme regardless of OS preference.
+   * Use {@link VantorControl.setTheme} to switch at runtime (e.g. to sync with
+   * a host app that has its own dark-mode toggle).
+   */
+  theme?: 'auto' | 'light' | 'dark';
   onItemsLoaded?: (items: StacItem[]) => void;
   onSelectionChange?: (selectedItems: StacItem[]) => void;
 }

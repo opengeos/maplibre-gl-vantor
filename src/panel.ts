@@ -63,23 +63,27 @@ export class PanelUI extends EventTarget {
   private collapsed: boolean;
   private panelWidth?: number;
   private maxHeight?: number | string;
+  private theme: 'auto' | 'light' | 'dark';
 
   constructor(
     container: HTMLElement,
     collapsed = false,
     panelWidth?: number,
     maxHeight?: number | string,
+    theme: 'auto' | 'light' | 'dark' = 'auto',
   ) {
     super();
     this.root = container;
     this.collapsed = collapsed;
     this.panelWidth = panelWidth;
     this.maxHeight = maxHeight;
+    this.theme = theme;
     this.buildUI();
   }
 
   private buildUI(): void {
     this.panelDiv = this.el('div', 'vantor-panel');
+    this.panelDiv.classList.add(`vantor-panel--theme-${this.theme}`);
     if (this.collapsed) {
       this.panelDiv.classList.add('vantor-panel--collapsed');
     }
@@ -428,6 +432,16 @@ export class PanelUI extends EventTarget {
   setStatus(message: string, type: StatusType = 'info'): void {
     this.statusDiv.textContent = message;
     this.statusDiv.className = `vantor-panel__status vantor-panel__status--${type}`;
+  }
+
+  setTheme(theme: 'auto' | 'light' | 'dark'): void {
+    this.panelDiv.classList.remove(
+      'vantor-panel--theme-auto',
+      'vantor-panel--theme-light',
+      'vantor-panel--theme-dark',
+    );
+    this.theme = theme;
+    this.panelDiv.classList.add(`vantor-panel--theme-${theme}`);
   }
 
   setProgress(value: number): void {

@@ -47,6 +47,7 @@ export class VantorControl implements IControl {
       this.options.collapsed,
       this.options.panelWidth,
       this.options.maxHeight,
+      this.options.theme,
     );
     this.bindEvents();
     this.loadCatalog();
@@ -94,6 +95,15 @@ export class VantorControl implements IControl {
 
   getCogLayer(): CogLayer | null {
     return this.cogLayer;
+  }
+
+  /**
+   * Switch the panel color theme at runtime. Useful for syncing with a host
+   * application that has its own dark-mode toggle.
+   */
+  setTheme(theme: 'auto' | 'light' | 'dark'): void {
+    this.options.theme = theme;
+    this.panel?.setTheme(theme);
   }
 
   private bindEvents(): void {
