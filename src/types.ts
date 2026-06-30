@@ -1,5 +1,5 @@
 import type { Polygon, MultiPolygon } from 'geojson';
-import type { RasterLoader } from './cog-layer';
+import type { CogAdder, RasterLoader } from './cog-layer';
 
 export interface StacLink {
   rel: string;
@@ -115,6 +115,13 @@ export interface VantorControlOptions {
    * single deck.gl/luma.gl instead of a bundled second copy.
    */
   rasterLoader?: RasterLoader;
+  /**
+   * Renders a COG through the host instead of the bundled deck.gl pipeline. When
+   * provided (e.g. GeoLibre's `app.addCogLayer`), each COG becomes a native
+   * host-managed layer that appears in the host's Layers panel; takes precedence
+   * over {@link rasterLoader}. Omit for standalone use.
+   */
+  cogAdder?: CogAdder;
   onItemsLoaded?: (items: StacItem[]) => void;
   onSelectionChange?: (selectedItems: StacItem[]) => void;
 }

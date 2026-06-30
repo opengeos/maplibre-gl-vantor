@@ -1,7 +1,6 @@
 import type { Map, MapMouseEvent, GeoJSONSource } from 'maplibre-gl';
-import maplibregl from 'maplibre-gl';
 import type { StacItem } from './types';
-import { itemsToFeatureCollection } from './utils';
+import { INTERNAL_LAYER_METADATA, itemsToFeatureCollection } from './utils';
 
 const SOURCE_ID = 'vantor-footprints-source';
 const FILL_LAYER_ID = 'vantor-footprints-fill';
@@ -33,6 +32,7 @@ export class FootprintLayer {
         id: FILL_LAYER_ID,
         type: 'fill',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         paint: {
           'fill-color': [
             'case',
@@ -50,6 +50,7 @@ export class FootprintLayer {
         id: PRE_LINE_LAYER_ID,
         type: 'line',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         filter: ['==', ['get', 'phase'], 'pre'],
         paint: {
           'line-color': '#2196F3',
@@ -62,6 +63,7 @@ export class FootprintLayer {
         id: POST_LINE_LAYER_ID,
         type: 'line',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         filter: ['==', ['get', 'phase'], 'post'],
         paint: {
           'line-color': '#F44336',
@@ -105,16 +107,31 @@ export class FootprintLayer {
   fitToBounds(items: StacItem[]): void {
     if (items.length === 0) return;
 
-    const bounds = new maplibregl.LngLatBounds();
+    // Compute bounds as a plain [[w,s],[e,n]] array rather than constructing a
+    // maplibregl.LngLatBounds: when this runs in a host (e.g. GeoLibre) the map
+    // belongs to a different maplibre-gl instance, and a foreign LngLatBounds
+    // fails the host's instanceof check in fitBounds and is silently ignored.
+    let west = Infinity;
+    let south = Infinity;
+    let east = -Infinity;
+    let north = -Infinity;
     for (const item of items) {
-      if (item.bbox) {
-        bounds.extend([item.bbox[0], item.bbox[1]]);
-        bounds.extend([item.bbox[2], item.bbox[3]]);
+      if (item.bbox && item.bbox.length >= 4) {
+        west = Math.min(west, item.bbox[0]);
+        south = Math.min(south, item.bbox[1]);
+        east = Math.max(east, item.bbox[2]);
+        north = Math.max(north, item.bbox[3]);
       }
     }
 
-    if (!bounds.isEmpty()) {
-      this.map.fitBounds(bounds, { padding: 50 });
+    if (west <= east && south <= north) {
+      this.map.fitBounds(
+        [
+          [west, south],
+          [east, north],
+        ],
+        { padding: 50 },
+      );
     }
   }
 
