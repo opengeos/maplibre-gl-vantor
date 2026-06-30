@@ -6,6 +6,18 @@ import type { StacItem } from './types';
 type RasterModule = typeof import('maplibre-gl-raster');
 
 /**
+ * Renders a COG through a host (e.g. GeoLibre's `app.addCogLayer`) instead of
+ * the bundled deck.gl pipeline, returning the host layer id. When supplied, the
+ * host owns the COG (it appears in the host's Layers panel and the host manages
+ * projection/visibility/removal).
+ */
+export type CogAdder = (
+  name: string,
+  url: string,
+  options?: { nodata?: number; opacity?: number },
+) => Promise<string>;
+
+/**
  * deck.gl's tiled raster rendering (used for COGs) does not support MapLibre's
  * globe projection, so force mercator when a COG is displayed. Mirrors
  * GeoLibre's built-in raster behavior. An idle guard re-applies it because the
@@ -77,10 +89,12 @@ export class CogLayer {
   private activeLayers: CogLayerEntry[] = [];
   private eventHandlers: Map<CogLayerEvent, Set<CogLayerEventHandler>> = new Map();
   private rasterLoader: RasterLoader;
+  private cogAdder?: CogAdder;
 
-  constructor(map: MaplibreMap, rasterLoader?: RasterLoader) {
+  constructor(map: MaplibreMap, rasterLoader?: RasterLoader, cogAdder?: CogAdder) {
     this.map = map;
     this.rasterLoader = rasterLoader ?? (() => import('maplibre-gl-raster'));
+    this.cogAdder = cogAdder;
   }
 
   on(event: CogLayerEvent, handler: CogLayerEventHandler): void {
@@ -132,12 +146,21 @@ export class CogLayer {
     // Skip if already added
     if (this.activeLayers.some((l) => l.itemId === item.id)) return;
 
-    const manager = await this.ensureManager();
-
     const name = item.id;
+
+    // Host path (e.g. GeoLibre): the COG becomes a native host-managed layer
+    // that shows in the host's Layers panel; the host owns projection/removal.
+    // nodata: 0 renders fill/border pixels transparently instead of black.
+    if (this.cogAdder) {
+      await this.cogAdder(name, cogUrl, { nodata: 0 });
+      this.activeLayers.push({ itemId: item.id, cogUrl, name, visible: true, opacity: 1 });
+      this.emit('layeradd', { layerId: item.id, url: cogUrl, name });
+      return;
+    }
+
+    // Standalone path: render through the bundled maplibre-gl-raster pipeline.
+    const manager = await this.ensureManager();
     // Resolves once the GeoTIFF header has loaded; rejects on load failure.
-    // nodata: 0 renders fill/border pixels (value 0) transparently instead of
-    // black, matching the catalog's convention for background pixels.
     await manager.addRaster(cogUrl, {
       id: item.id,
       name,

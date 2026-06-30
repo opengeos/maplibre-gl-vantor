@@ -1,5 +1,6 @@
 import type { Map, GeoJSONSource } from 'maplibre-gl';
 import type { StacItem } from './types';
+import { INTERNAL_LAYER_METADATA } from './utils';
 
 const SOURCE_ID = 'vantor-highlight-source';
 const FILL_LAYER_ID = 'vantor-highlight-fill';
@@ -28,6 +29,7 @@ export class HighlightLayer {
       id: FILL_LAYER_ID,
       type: 'fill',
       source: SOURCE_ID,
+      metadata: INTERNAL_LAYER_METADATA,
       paint: {
         'fill-color': '#FFEB3B',
         'fill-opacity': 0.3,
@@ -38,6 +40,7 @@ export class HighlightLayer {
       id: LINE_LAYER_ID,
       type: 'line',
       source: SOURCE_ID,
+      metadata: INTERNAL_LAYER_METADATA,
       paint: {
         'line-color': '#FFC107',
         'line-width': 3,

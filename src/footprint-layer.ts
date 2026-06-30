@@ -1,6 +1,6 @@
 import type { Map, MapMouseEvent, GeoJSONSource } from 'maplibre-gl';
 import type { StacItem } from './types';
-import { itemsToFeatureCollection } from './utils';
+import { INTERNAL_LAYER_METADATA, itemsToFeatureCollection } from './utils';
 
 const SOURCE_ID = 'vantor-footprints-source';
 const FILL_LAYER_ID = 'vantor-footprints-fill';
@@ -32,6 +32,7 @@ export class FootprintLayer {
         id: FILL_LAYER_ID,
         type: 'fill',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         paint: {
           'fill-color': [
             'case',
@@ -49,6 +50,7 @@ export class FootprintLayer {
         id: PRE_LINE_LAYER_ID,
         type: 'line',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         filter: ['==', ['get', 'phase'], 'pre'],
         paint: {
           'line-color': '#2196F3',
@@ -61,6 +63,7 @@ export class FootprintLayer {
         id: POST_LINE_LAYER_ID,
         type: 'line',
         source: SOURCE_ID,
+        metadata: INTERNAL_LAYER_METADATA,
         filter: ['==', ['get', 'phase'], 'post'],
         paint: {
           'line-color': '#F44336',

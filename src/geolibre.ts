@@ -15,8 +15,16 @@ interface GeoLibreAppAPI {
     position?: GeoLibreMapControlPosition,
   ) => boolean;
   removeMapControl: (control: VantorControl) => void;
-  // GeoLibre hands plugins its own maplibre-gl-raster so COGs render on the
-  // host's single deck.gl/luma.gl instance instead of a bundled second copy.
+  // Adds a COG as a native, host-managed layer that appears in the host's
+  // Layers panel (the host loads the GeoTIFF, manages projection/visibility,
+  // and persists it). Preferred path for COG rendering in GeoLibre.
+  addCogLayer?: (
+    name: string,
+    url: string,
+    options?: { nodata?: number; opacity?: number },
+  ) => Promise<string>;
+  // Fallback: GeoLibre hands plugins its own maplibre-gl-raster so COGs render
+  // on the host's single deck.gl/luma.gl instance instead of a bundled copy.
   getMaplibreGlRaster?: () => Promise<typeof import('maplibre-gl-raster')>;
   // Persisted projection preference; deck.gl COG tiles require mercator (globe
   // is unsupported). A raw map.setProjection is reverted by the host on idle.
@@ -44,8 +52,11 @@ function createControl(app: GeoLibreAppAPI): VantorControl {
     collapsed: true,
     panelWidth: 380,
     theme: 'auto',
-    // Render COGs through GeoLibre's bundled maplibre-gl-raster (single
-    // deck.gl/luma.gl instance) when the host provides it.
+    // Prefer the host's addCogLayer so COGs become native layers in the Layers
+    // panel; fall back to the host's maplibre-gl-raster instance if absent.
+    cogAdder: app.addCogLayer
+      ? (name, url, options) => app.addCogLayer!(name, url, options)
+      : undefined,
     rasterLoader: app.getMaplibreGlRaster
       ? () => app.getMaplibreGlRaster!()
       : undefined,
