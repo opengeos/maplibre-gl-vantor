@@ -1,4 +1,9 @@
-:root {
+.vantor-panel {
+  /* Layout */
+  --vantor-panel-width: 380px;
+  --vantor-panel-max-height: calc(100vh - 40px);
+
+  /* Light theme (default) */
   --vantor-primary: #1976d2;
   --vantor-primary-hover: #1565c0;
   --vantor-success: #388e3c;
@@ -11,8 +16,44 @@
   --vantor-text: #333333;
   --vantor-text-muted: #a0a0a0;
   --vantor-border: #e0e0e0;
-  --vantor-panel-width: 380px;
-  --vantor-panel-max-height: calc(100vh - 40px);
+  --vantor-hover: #e0e0e0;
+  --vantor-row-hover: #e3f2fd;
+  --vantor-th-hover: #ebebeb;
+  --vantor-highlight-bg: #fff9c4;
+  --vantor-highlight-outline: #ffc107;
+  --vantor-disabled: #bdbdbd;
+}
+
+/* Dark theme — applied explicitly via theme: 'dark' */
+.vantor-panel--theme-dark {
+  --vantor-bg: #1e1e1e;
+  --vantor-bg-alt: #2a2a2a;
+  --vantor-text: #e6e6e6;
+  --vantor-text-muted: #9e9e9e;
+  --vantor-border: #3a3a3a;
+  --vantor-hover: #3a3a3a;
+  --vantor-row-hover: #2d3a4a;
+  --vantor-th-hover: #333333;
+  --vantor-highlight-bg: #4a4327;
+  --vantor-highlight-outline: #ffc107;
+  --vantor-disabled: #555555;
+}
+
+/* Dark theme — follow the OS preference when theme: 'auto' (default) */
+@media (prefers-color-scheme: dark) {
+  .vantor-panel--theme-auto {
+    --vantor-bg: #1e1e1e;
+    --vantor-bg-alt: #2a2a2a;
+    --vantor-text: #e6e6e6;
+    --vantor-text-muted: #9e9e9e;
+    --vantor-border: #3a3a3a;
+    --vantor-hover: #3a3a3a;
+    --vantor-row-hover: #2d3a4a;
+    --vantor-th-hover: #333333;
+    --vantor-highlight-bg: #4a4327;
+    --vantor-highlight-outline: #ffc107;
+    --vantor-disabled: #555555;
+  }
 }
 
 .maplibregl-ctrl-vantor {
@@ -20,7 +61,8 @@
 }
 
 .vantor-panel {
-  width: var(--vantor-panel-width);
+  /* Fit the viewport on narrow screens, never overflow horizontally */
+  width: min(var(--vantor-panel-width), calc(100vw - 20px));
   max-height: var(--vantor-panel-max-height);
   background: var(--vantor-bg);
   border-radius: 8px;
@@ -53,7 +95,7 @@
   height: 29px;
   padding: 0;
   border: 0;
-  background: #ffffff;
+  background: var(--vantor-bg);
   cursor: pointer;
   border-radius: 4px;
   align-items: center;
@@ -63,6 +105,30 @@
 
 .maplibregl-ctrl-vantor .vantor-panel__open-btn:hover:not(:disabled) {
   background-color: rgb(0 0 0 / 5%);
+}
+
+/* Dark theme: keep the collapsed icon button readable on a dark basemap —
+   light icon fill (below) plus a light ring so the button doesn't blend in. */
+.vantor-panel--theme-dark .vantor-panel__open-btn {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.maplibregl-ctrl-vantor
+  .vantor-panel--theme-dark
+  .vantor-panel__open-btn:hover:not(:disabled) {
+  background-color: rgb(255 255 255 / 12%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .vantor-panel--theme-auto .vantor-panel__open-btn {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  }
+
+  .maplibregl-ctrl-vantor
+    .vantor-panel--theme-auto
+    .vantor-panel__open-btn:hover:not(:disabled) {
+    background-color: rgb(255 255 255 / 12%);
+  }
 }
 
 .vantor-panel__open-btn:focus {
@@ -76,6 +142,18 @@
 
 .vantor-panel__open-icon {
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cg fill='%23333'%3E%3Cpath d='M10 11h9v7h-9z'/%3E%3Cpath d='M6 11h3v7H6z'/%3E%3Cpath d='M20 11h3v7h-3z'/%3E%3Cpath d='M13.2 8.5h2.6V10h-2.6z'/%3E%3Cpath d='M14.5 18.5 12 22h1.9l.6-.9h1l.6.9H17z'/%3E%3Ccircle cx='14.5' cy='14.5' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Lighter icon for dark theme (explicit) */
+.vantor-panel--theme-dark .vantor-panel__open-icon {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cg fill='%23e6e6e6'%3E%3Cpath d='M10 11h9v7h-9z'/%3E%3Cpath d='M6 11h3v7H6z'/%3E%3Cpath d='M20 11h3v7h-3z'/%3E%3Cpath d='M13.2 8.5h2.6V10h-2.6z'/%3E%3Cpath d='M14.5 18.5 12 22h1.9l.6-.9h1l.6.9H17z'/%3E%3Ccircle cx='14.5' cy='14.5' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Lighter icon for dark theme (auto / OS preference) */
+@media (prefers-color-scheme: dark) {
+  .vantor-panel--theme-auto .vantor-panel__open-icon {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='29' height='29' viewBox='0 0 29 29'%3E%3Cg fill='%23e6e6e6'%3E%3Cpath d='M10 11h9v7h-9z'/%3E%3Cpath d='M6 11h3v7H6z'/%3E%3Cpath d='M20 11h3v7h-3z'/%3E%3Cpath d='M13.2 8.5h2.6V10h-2.6z'/%3E%3Cpath d='M14.5 18.5 12 22h1.9l.6-.9h1l.6.9H17z'/%3E%3Ccircle cx='14.5' cy='14.5' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  }
 }
 
 /* Close button (visible when expanded) */
@@ -98,7 +176,7 @@
 }
 
 .maplibregl-ctrl-vantor .vantor-panel__toggle:hover:not(:disabled) {
-  background-color: #e0e0e0;
+  background-color: var(--vantor-hover);
   color: var(--vantor-text);
 }
 
@@ -230,7 +308,7 @@
 }
 
 .maplibregl-ctrl-vantor .vantor-panel__btn:hover:not(:disabled) {
-  background-color: #e0e0e0;
+  background-color: var(--vantor-hover);
 }
 
 .vantor-panel__btn:disabled {
@@ -251,8 +329,8 @@
 }
 
 .vantor-panel__btn--primary:disabled {
-  background: #bdbdbd;
-  border-color: #bdbdbd;
+  background: var(--vantor-disabled);
+  border-color: var(--vantor-disabled);
 }
 
 .vantor-panel__btn--success {
@@ -268,8 +346,8 @@
 }
 
 .vantor-panel__btn--success:disabled {
-  background: #bdbdbd;
-  border-color: #bdbdbd;
+  background: var(--vantor-disabled);
+  border-color: var(--vantor-disabled);
 }
 
 .vantor-panel__btn--warning {
@@ -285,8 +363,8 @@
 }
 
 .vantor-panel__btn--warning:disabled {
-  background: #bdbdbd;
-  border-color: #bdbdbd;
+  background: var(--vantor-disabled);
+  border-color: var(--vantor-disabled);
 }
 
 .vantor-panel__btn--active {
@@ -374,7 +452,7 @@
 }
 
 .vantor-panel__table th:hover {
-  background: #ebebeb;
+  background: var(--vantor-th-hover);
 }
 
 .vantor-panel__table th.vantor-sort-asc::after {
@@ -401,7 +479,7 @@
 }
 
 .vantor-panel__table tbody tr:hover {
-  background: #e3f2fd;
+  background: var(--vantor-row-hover);
 }
 
 .vantor-panel__table tbody tr:nth-child(even) {
@@ -409,12 +487,12 @@
 }
 
 .vantor-panel__table tbody tr:nth-child(even):hover {
-  background: #e3f2fd;
+  background: var(--vantor-row-hover);
 }
 
 .vantor-panel__table-row--highlighted {
-  background: #fff9c4 !important;
-  outline: 2px solid #ffc107;
+  background: var(--vantor-highlight-bg) !important;
+  outline: 2px solid var(--vantor-highlight-outline);
   outline-offset: -2px;
 }
 
@@ -499,11 +577,12 @@
   color: #ff6b6b;
 }
 
-/* Responsive */
+/* Responsive — the base `width: min(...)` already fits narrow screens and the
+   panel grows to its content (scrolling internally) up to the max-height. The
+   width override must NOT apply when collapsed, or the icon button stretches
+   full-width and floats over neighboring controls. */
 @media (max-width: 480px) {
-  .vantor-panel {
-    width: 100vw !important;
-    max-height: 50vh;
-    border-radius: 12px 12px 0 0;
+  .vantor-panel:not(.vantor-panel--collapsed) {
+    max-height: min(var(--vantor-panel-max-height), calc(100vh - 20px));
   }
 }
