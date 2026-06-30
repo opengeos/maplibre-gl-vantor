@@ -497,9 +497,14 @@ export class PanelUI extends EventTarget {
     const rRect = row.getBoundingClientRect();
     // The header is sticky, so the usable top of the viewport sits below it.
     const headerH = this.thead.getBoundingClientRect().height;
+    // clientTop/clientHeight exclude the border and the horizontal scrollbar, so
+    // the usable bottom sits above the scrollbar (which would otherwise clip the
+    // row we scroll to).
+    const viewTop = cRect.top + container.clientTop + headerH;
+    const viewBottom = cRect.top + container.clientTop + container.clientHeight;
 
-    const deltaTop = rRect.top - (cRect.top + headerH);
-    const deltaBottom = rRect.bottom - cRect.bottom;
+    const deltaTop = rRect.top - viewTop;
+    const deltaBottom = rRect.bottom - viewBottom;
 
     if (deltaTop < 0) {
       container.scrollBy({ top: deltaTop, behavior: 'smooth' });
