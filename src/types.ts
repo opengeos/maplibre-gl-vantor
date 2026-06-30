@@ -1,4 +1,5 @@
 import type { Polygon, MultiPolygon } from 'geojson';
+import type { RasterLoader } from './cog-layer';
 
 export interface StacLink {
   rel: string;
@@ -107,6 +108,13 @@ export interface VantorControlOptions {
    * a host app that has its own dark-mode toggle).
    */
   theme?: 'auto' | 'light' | 'dark';
+  /**
+   * Supplies the maplibre-gl-raster module used for COG rendering. Defaults to a
+   * dynamic `import('maplibre-gl-raster')`. A host such as GeoLibre can pass its
+   * own instance (via `app.getMaplibreGlRaster()`) so COGs render on the host's
+   * single deck.gl/luma.gl instead of a bundled second copy.
+   */
+  rasterLoader?: RasterLoader;
   onItemsLoaded?: (items: StacItem[]) => void;
   onSelectionChange?: (selectedItems: StacItem[]) => void;
 }

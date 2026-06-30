@@ -5,3 +5,5 @@ dist/
 *.tgz
 .vite/
 .prettierrc
+geolibre-plugin/dist/
+geolibre-plugin/*.zip

@@ -26,6 +26,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:geolibre": "vite build --config vite.geolibre.config.ts",
+    "package:geolibre": "npm run build:geolibre && node scripts/package-geolibre-plugin.mjs",
+    "install:geolibre": "npm run build:geolibre && node scripts/install-geolibre-plugin.mjs",
+    "serve:geolibre": "node scripts/serve-geolibre-plugin.mjs",
     "preview": "vite preview",
     "lint": "eslint src/",
     "format": "prettier --write src/",

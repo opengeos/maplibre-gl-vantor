@@ -51,7 +51,7 @@ export class VantorControl implements IControl {
     );
     this.bindEvents();
     this.loadCatalog();
-    this.cogLayer = new CogLayer(map);
+    this.cogLayer = new CogLayer(map, this.options.rasterLoader);
 
     const initLayers = () => {
       this.footprintLayer = new FootprintLayer(map);

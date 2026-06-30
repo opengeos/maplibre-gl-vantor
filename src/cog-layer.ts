@@ -2,6 +2,42 @@ import type { Map as MaplibreMap } from 'maplibre-gl';
 import type { LayerManager } from 'maplibre-gl-raster';
 import type { StacItem } from './types';
 
+/** The maplibre-gl-raster module surface this layer needs. */
+type RasterModule = typeof import('maplibre-gl-raster');
+
+/**
+ * deck.gl's tiled raster rendering (used for COGs) does not support MapLibre's
+ * globe projection, so force mercator when a COG is displayed. Mirrors
+ * GeoLibre's built-in raster behavior. An idle guard re-applies it because the
+ * projection can be reset while a style is still settling.
+ */
+function ensureMercatorProjection(map: MaplibreMap): void {
+  const m = map as unknown as {
+    getProjection?: () => { type?: string } | undefined;
+    setProjection?: (projection: { type: string }) => void;
+    once?: (event: string, listener: () => void) => void;
+  };
+  const setMercator = () => {
+    try {
+      if (m.getProjection?.()?.type === 'mercator') return;
+      m.setProjection?.({ type: 'mercator' });
+    } catch {
+      // MapLibre can reject projection changes while the style is settling;
+      // the idle guard retries.
+    }
+  };
+  setMercator();
+  m.once?.('idle', setMercator);
+}
+
+/**
+ * Resolves the maplibre-gl-raster module. Defaults to a dynamic import, but a
+ * host (e.g. GeoLibre via `app.getMaplibreGlRaster()`) can supply its own
+ * already-loaded instance so the COG pipeline renders on the host's single
+ * deck.gl/luma.gl instead of a bundled second copy.
+ */
+export type RasterLoader = () => Promise<RasterModule>;
+
 export type CogLayerEvent = 'layeradd' | 'layerremove';
 
 export interface CogLayerEventDetail {
@@ -40,9 +76,11 @@ export class CogLayer {
   private managerPromise: Promise<LayerManager> | null = null;
   private activeLayers: CogLayerEntry[] = [];
   private eventHandlers: Map<CogLayerEvent, Set<CogLayerEventHandler>> = new Map();
+  private rasterLoader: RasterLoader;
 
-  constructor(map: MaplibreMap) {
+  constructor(map: MaplibreMap, rasterLoader?: RasterLoader) {
     this.map = map;
+    this.rasterLoader = rasterLoader ?? (() => import('maplibre-gl-raster'));
   }
 
   on(event: CogLayerEvent, handler: CogLayerEventHandler): void {
@@ -64,7 +102,7 @@ export class CogLayer {
     if (!this.managerPromise) {
       this.managerPromise = (async () => {
         try {
-          const { LayerManager } = await import('maplibre-gl-raster');
+          const { LayerManager } = await this.rasterLoader();
           // maplibre-gl-raster's map type may come from a different maplibre-gl
           // version than the host app's; the surface we use is identical.
           const manager = new LayerManager(this.map as never, {
@@ -108,6 +146,8 @@ export class CogLayer {
     });
 
     this.activeLayers.push({ itemId: item.id, cogUrl, name, visible: true, opacity: 1 });
+    // COGs render via deck.gl tiles, which require mercator (not globe).
+    ensureMercatorProjection(this.map);
     this.emit('layeradd', { layerId: item.id, url: cogUrl, name });
   }
 
