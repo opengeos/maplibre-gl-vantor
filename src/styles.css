@@ -81,6 +81,67 @@
   display: none;
 }
 
+/* Resizable: once the user drags a handle, the panel takes an explicit size
+   and the results table fills the remaining height instead of capping at its
+   default max-height. */
+.vantor-panel--resized {
+  height: var(--vantor-panel-height);
+  max-height: var(--vantor-panel-height);
+}
+
+.vantor-panel--resized .vantor-panel__table-container {
+  max-height: none;
+}
+
+.vantor-panel--resizing {
+  user-select: none;
+}
+
+.vantor-panel__resize-handle {
+  position: absolute;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  z-index: 5;
+  touch-action: none;
+}
+
+.vantor-panel--collapsed .vantor-panel__resize-handle {
+  display: none;
+}
+
+.vantor-panel__resize-handle--bl {
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.vantor-panel__resize-handle--br {
+  right: 0;
+  cursor: nwse-resize;
+}
+
+/* Subtle corner grip lines */
+.vantor-panel__resize-handle::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  opacity: 0.5;
+}
+
+.vantor-panel__resize-handle--bl::after {
+  left: 3px;
+  border-left: 2px solid var(--vantor-text-muted);
+  border-bottom: 2px solid var(--vantor-text-muted);
+}
+
+.vantor-panel__resize-handle--br::after {
+  right: 3px;
+  border-right: 2px solid var(--vantor-text-muted);
+  border-bottom: 2px solid var(--vantor-text-muted);
+}
+
 .vantor-panel--collapsed {
   width: auto;
   max-height: none;

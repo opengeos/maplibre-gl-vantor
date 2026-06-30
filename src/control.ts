@@ -300,6 +300,9 @@ export class VantorControl implements IControl {
 
       this.highlightLayer?.highlight(item);
       this.panel?.highlightRow(itemId);
+      // Selecting a footprint on the map also checks its result row, so it is
+      // included in Visualize/Download actions.
+      this.panel?.setRowChecked(itemId, true);
     } finally {
       setTimeout(() => {
         this.selectionLock = false;

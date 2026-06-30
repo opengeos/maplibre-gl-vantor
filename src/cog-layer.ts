@@ -98,7 +98,14 @@ export class CogLayer {
 
     const name = item.id;
     // Resolves once the GeoTIFF header has loaded; rejects on load failure.
-    await manager.addRaster(cogUrl, { id: item.id, name, zoomTo: false });
+    // nodata: 0 renders fill/border pixels (value 0) transparently instead of
+    // black, matching the catalog's convention for background pixels.
+    await manager.addRaster(cogUrl, {
+      id: item.id,
+      name,
+      zoomTo: false,
+      state: { nodata: 0 },
+    });
 
     this.activeLayers.push({ itemId: item.id, cogUrl, name, visible: true, opacity: 1 });
     this.emit('layeradd', { layerId: item.id, url: cogUrl, name });
