@@ -37,7 +37,7 @@ interface GeoLibrePlugin {
 }
 
 let control: VantorControl | null = null;
-let position: GeoLibreMapControlPosition = 'top-right';
+let position: GeoLibreMapControlPosition = 'top-left';
 
 function createControl(app: GeoLibreAppAPI): VantorControl {
   return new VantorControl({
