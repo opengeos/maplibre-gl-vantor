@@ -35,11 +35,7 @@
     "maplibre-gl": ">=5.18.0",
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0",
-    "@deck.gl/core": ">=9.0.0",
-    "@deck.gl/mapbox": ">=9.0.0",
-    "@developmentseed/deck.gl-geotiff": ">=0.1.0",
-    "geotiff-geokeys-to-proj4": ">=2024.0.0",
-    "proj4": ">=2.0.0",
+    "maplibre-gl-raster": ">=0.7.0",
     "maplibre-gl-layer-control": ">=0.14.0"
   },
   "peerDependenciesMeta": {
@@ -49,32 +45,17 @@
     "react-dom": {
       "optional": true
     },
-    "@deck.gl/core": {
-      "optional": true
-    },
-    "@deck.gl/mapbox": {
-      "optional": true
-    },
-    "@developmentseed/deck.gl-geotiff": {
-      "optional": true
-    },
-    "geotiff-geokeys-to-proj4": {
-      "optional": true
-    },
-    "proj4": {
+    "maplibre-gl-raster": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@deck.gl/core": "^9.0.0",
-    "@deck.gl/mapbox": "^9.0.0",
-    "@developmentseed/deck.gl-geotiff": "^0.1.0",
     "@types/geojson": "^7946.0.14",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "eslint": "^9.0.0",
-    "geotiff-geokeys-to-proj4": "^2024.4.13",
     "maplibre-gl": "^4.7.0",
+    "maplibre-gl-raster": "^0.7.0",
     "prettier": "^3.3.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",

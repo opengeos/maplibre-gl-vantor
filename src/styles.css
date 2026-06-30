@@ -103,8 +103,11 @@
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
+/* Use an opaque, theme-aware hover shade. A translucent hover color let the
+   basemap show through the collapsed button, which made the icon disappear on
+   hover (e.g. a light icon over a light basemap in dark mode). */
 .maplibregl-ctrl-vantor .vantor-panel__open-btn:hover:not(:disabled) {
-  background-color: rgb(0 0 0 / 5%);
+  background-color: var(--vantor-bg-alt);
 }
 
 /* Dark theme: keep the collapsed icon button readable on a dark basemap —
@@ -113,21 +116,9 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
-.maplibregl-ctrl-vantor
-  .vantor-panel--theme-dark
-  .vantor-panel__open-btn:hover:not(:disabled) {
-  background-color: rgb(255 255 255 / 12%);
-}
-
 @media (prefers-color-scheme: dark) {
   .vantor-panel--theme-auto .vantor-panel__open-btn {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
-  }
-
-  .maplibregl-ctrl-vantor
-    .vantor-panel--theme-auto
-    .vantor-panel__open-btn:hover:not(:disabled) {
-    background-color: rgb(255 255 255 / 12%);
   }
 }
 
