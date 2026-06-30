@@ -148,7 +148,69 @@ export class PanelUI extends EventTarget {
     this.contentDiv.appendChild(this.statusDiv);
 
     this.panelDiv.appendChild(this.contentDiv);
+
+    // Resize handles (bottom-left and bottom-right corners)
+    this.buildResizeHandles();
+
     this.root.appendChild(this.panelDiv);
+  }
+
+  private buildResizeHandles(): void {
+    const left = this.el(
+      'div',
+      'vantor-panel__resize-handle vantor-panel__resize-handle--bl',
+    );
+    const right = this.el(
+      'div',
+      'vantor-panel__resize-handle vantor-panel__resize-handle--br',
+    );
+    left.setAttribute('aria-hidden', 'true');
+    right.setAttribute('aria-hidden', 'true');
+    this.attachResize(left, 'left');
+    this.attachResize(right, 'right');
+    this.panelDiv.appendChild(left);
+    this.panelDiv.appendChild(right);
+  }
+
+  private attachResize(handle: HTMLElement, side: 'left' | 'right'): void {
+    const MIN_W = 280;
+    const MIN_H = 220;
+    const clamp = (v: number, lo: number, hi: number) =>
+      Math.max(lo, Math.min(hi, v));
+
+    handle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const rect = this.panelDiv.getBoundingClientRect();
+      const startW = rect.width;
+      const startH = rect.height;
+      handle.setPointerCapture(e.pointerId);
+      this.panelDiv.classList.add('vantor-panel--resizing');
+
+      const onMove = (ev: PointerEvent) => {
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        // Bottom-right widens on rightward drag; bottom-left on leftward drag.
+        const dw = side === 'right' ? dx : -dx;
+        const maxW = Math.max(MIN_W, window.innerWidth - 20);
+        const maxH = Math.max(MIN_H, window.innerHeight - 40);
+        const newW = clamp(startW + dw, MIN_W, maxW);
+        const newH = clamp(startH + dy, MIN_H, maxH);
+        this.panelDiv.classList.add('vantor-panel--resized');
+        this.panelDiv.style.setProperty('--vantor-panel-width', `${newW}px`);
+        this.panelDiv.style.setProperty('--vantor-panel-height', `${newH}px`);
+      };
+      const onUp = (ev: PointerEvent) => {
+        handle.releasePointerCapture(ev.pointerId);
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        this.panelDiv.classList.remove('vantor-panel--resizing');
+      };
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+    });
   }
 
   private buildSearchSection(): void {
@@ -418,10 +480,40 @@ export class PanelUI extends EventTarget {
     for (const row of rows) {
       if (row.dataset.itemId === itemId) {
         row.classList.add('vantor-panel__table-row--highlighted');
-        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        this.scrollRowIntoView(row);
         break;
       }
     }
+  }
+
+  /**
+   * Scroll the results table container so `row` is visible, accounting for the
+   * sticky table header. Scrolls only the table container (not the page), which
+   * `Element.scrollIntoView({ block: 'nearest' })` does not do reliably here.
+   */
+  private scrollRowIntoView(row: HTMLElement): void {
+    const container = this.tableContainer;
+    const cRect = container.getBoundingClientRect();
+    const rRect = row.getBoundingClientRect();
+    // The header is sticky, so the usable top of the viewport sits below it.
+    const headerH = this.thead.getBoundingClientRect().height;
+
+    const deltaTop = rRect.top - (cRect.top + headerH);
+    const deltaBottom = rRect.bottom - cRect.bottom;
+
+    if (deltaTop < 0) {
+      container.scrollBy({ top: deltaTop, behavior: 'smooth' });
+    } else if (deltaBottom > 0) {
+      container.scrollBy({ top: deltaBottom, behavior: 'smooth' });
+    }
+  }
+
+  /** Check or uncheck a result row's selection checkbox by item id. */
+  setRowChecked(itemId: string, checked: boolean): void {
+    const checkbox = this.tbody.querySelector<HTMLInputElement>(
+      `input[type="checkbox"][data-item-id="${CSS.escape(itemId)}"]`,
+    );
+    if (checkbox) checkbox.checked = checked;
   }
 
   setLoading(loading: boolean): void {

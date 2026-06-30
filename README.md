@@ -11,8 +11,8 @@ A [MapLibre GL JS](https://maplibre.org/) plugin for searching, visualizing, and
 - Search imagery by event, phase (pre/post), map extent, or drawn bounding box
 - Display image footprints on the map (blue for pre-event, red for post-event)
 - Bidirectional selection: click a table row to highlight on map, click a footprint to highlight in table
-- Visualize Cloud-Optimized GeoTIFFs (COGs) directly on the map via [deck.gl-geotiff](https://www.npmjs.com/package/@developmentseed/deck.gl-geotiff)
-- Nodata masking for transparent rendering of background pixels
+- Visualize Cloud-Optimized GeoTIFFs (COGs) directly on the map via [maplibre-gl-raster](https://www.npmjs.com/package/maplibre-gl-raster)
+- Nodata masking and internal mask channels rendered transparently
 - Download selected COG files
 - Sortable results table with multi-select
 - React component wrapper included
@@ -25,10 +25,10 @@ npm install maplibre-gl-vantor maplibre-gl
 
 ### Optional: COG Visualization
 
-To enable COG raster visualization on the map, install these additional packages:
+COG raster visualization is delegated to [maplibre-gl-raster](https://www.npmjs.com/package/maplibre-gl-raster), which reads GeoTIFFs with HTTP range requests and renders them on the GPU through a deck.gl pipeline. It correctly handles COGs that carry an internal GDAL mask (compositing the mask into the alpha channel), so masked imagery renders without errors. To enable on-map visualization, install it alongside its deck.gl / luma.gl peers:
 
 ```bash
-npm install @deck.gl/core @deck.gl/mapbox @developmentseed/deck.gl-geotiff geotiff-geokeys-to-proj4 proj4
+npm install maplibre-gl-raster
 ```
 
 ## Quick Start
@@ -244,7 +244,7 @@ src/
   control.ts            # MapLibre IControl orchestrator
   panel.ts              # Panel UI (DOM construction & events)
   stac-client.ts        # STAC catalog client
-  cog-layer.ts          # COG visualization via deck.gl-geotiff
+  cog-layer.ts          # COG visualization via maplibre-gl-raster
   footprint-layer.ts    # GeoJSON footprint polygons
   highlight-layer.ts    # Highlight for focused footprint
   draw-bbox.ts          # Interactive bounding box drawing
