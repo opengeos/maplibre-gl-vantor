@@ -1,5 +1,6 @@
 import type { Map, MapMouseEvent, GeoJSONSource } from 'maplibre-gl';
 import type { BBox } from './types';
+import { INTERNAL_LAYER_METADATA } from './utils';
 
 const SOURCE_ID = 'vantor-draw-bbox-source';
 const FILL_LAYER_ID = 'vantor-draw-bbox-fill';
@@ -40,6 +41,7 @@ export class DrawBBox {
       id: FILL_LAYER_ID,
       type: 'fill',
       source: SOURCE_ID,
+      metadata: INTERNAL_LAYER_METADATA,
       paint: {
         'fill-color': '#1976D2',
         'fill-opacity': 0.1,
@@ -50,6 +52,7 @@ export class DrawBBox {
       id: LINE_LAYER_ID,
       type: 'line',
       source: SOURCE_ID,
+      metadata: INTERNAL_LAYER_METADATA,
       paint: {
         'line-color': '#1976D2',
         'line-width': 2,
