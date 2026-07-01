@@ -79,7 +79,7 @@ function createControl(app: GeoLibreAppAPI): VantorControl {
 export const plugin: GeoLibrePlugin = {
   id: 'maplibre-gl-vantor',
   name: 'Vantor Open Data',
-  version: '0.2.0',
+  version: '0.2.1',
   activate(app) {
     const isNew = !control;
     control = control ?? createControl(app);
