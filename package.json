@@ -1,6 +1,6 @@
 {
   "name": "maplibre-gl-vantor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A MapLibre GL JS plugin for searching and visualizing Vantor Open Data STAC catalog",
   "type": "module",
   "main": "dist/maplibre-gl-vantor.js",
