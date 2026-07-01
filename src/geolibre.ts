@@ -62,7 +62,7 @@ function hostTheme(): 'light' | 'dark' {
 
 function createControl(app: GeoLibreAppAPI): VantorControl {
   return new VantorControl({
-    collapsed: true,
+    collapsed: false,
     panelWidth: 380,
     theme: hostTheme(),
     // Prefer the host's addCogLayer so COGs become native layers in the Layers
@@ -79,7 +79,7 @@ function createControl(app: GeoLibreAppAPI): VantorControl {
 export const plugin: GeoLibrePlugin = {
   id: 'maplibre-gl-vantor',
   name: 'Vantor Open Data',
-  version: '0.1.0',
+  version: '0.2.0',
   activate(app) {
     const isNew = !control;
     control = control ?? createControl(app);
