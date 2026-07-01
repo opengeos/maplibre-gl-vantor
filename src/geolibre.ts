@@ -95,7 +95,11 @@ export const plugin: GeoLibrePlugin = {
       control.getCogLayer()?.on('layeradd', () => app.setMapProjection!('mercator'));
     }
     // Keep the panel theme in sync with GeoLibre's light/dark toggle.
-    if (!themeObserver && typeof MutationObserver !== 'undefined') {
+    if (
+      !themeObserver &&
+      typeof document !== 'undefined' &&
+      typeof MutationObserver !== 'undefined'
+    ) {
       themeObserver = new MutationObserver(() => control?.setTheme(hostTheme()));
       themeObserver.observe(document.documentElement, {
         attributes: true,
