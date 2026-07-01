@@ -46,12 +46,25 @@ interface GeoLibrePlugin {
 
 let control: VantorControl | null = null;
 let position: GeoLibreMapControlPosition = 'top-left';
+let themeObserver: MutationObserver | null = null;
+
+/**
+ * GeoLibre encodes light/dark mode as a `dark` class on <html> (see its
+ * useThemeMode). Follow that instead of the OS `prefers-color-scheme` so the
+ * panel matches the app theme.
+ */
+function hostTheme(): 'light' | 'dark' {
+  return typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('dark')
+    ? 'dark'
+    : 'light';
+}
 
 function createControl(app: GeoLibreAppAPI): VantorControl {
   return new VantorControl({
     collapsed: true,
     panelWidth: 380,
-    theme: 'auto',
+    theme: hostTheme(),
     // Prefer the host's addCogLayer so COGs become native layers in the Layers
     // panel; fall back to the host's maplibre-gl-raster instance if absent.
     cogAdder: app.addCogLayer
@@ -81,8 +94,18 @@ export const plugin: GeoLibrePlugin = {
     if (isNew && app.setMapProjection) {
       control.getCogLayer()?.on('layeradd', () => app.setMapProjection!('mercator'));
     }
+    // Keep the panel theme in sync with GeoLibre's light/dark toggle.
+    if (!themeObserver && typeof MutationObserver !== 'undefined') {
+      themeObserver = new MutationObserver(() => control?.setTheme(hostTheme()));
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    }
   },
   deactivate(app) {
+    themeObserver?.disconnect();
+    themeObserver = null;
     if (!control) return;
     app.removeMapControl(control);
     control = null;
